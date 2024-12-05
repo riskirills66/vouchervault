@@ -9,6 +9,7 @@ const { google } = require('googleapis');
 const sql = require('mssql');
 const sharp = require('sharp');
 const config = require('./config.json');
+const crypto = require('crypto');
 
 const port = process.env.PORT || config.port;
 const documentsPath = path.join(__dirname, config.paths.documents);
@@ -50,6 +51,10 @@ function convertToNumbers(text) {
     let converted = cleaned.split('').map(char => charMap[char] || char).join('');
     converted = converted.replace(/[^0-9]/g, '');
     return converted;
+}
+
+function generateRandomFileName() {
+    return crypto.randomBytes(32).toString('hex') + '.png';
 }
 
 app.post('/api/scan', upload.fields([
@@ -289,7 +294,7 @@ async function makeFilePublic(drive, fileId) {
     }
 }
 
-// Modify the upload endpoint
+// Modified upload endpoint
 app.post('/api/upload', async (req, res) => {
     try {
         const { kodeProduk, keterangan, tglKadaluarsa, files } = req.body;
@@ -299,6 +304,7 @@ app.post('/api/upload', async (req, res) => {
         }
 
         const file = files[0];
+        const randomFileName = generateRandomFileName(); // Generate random name for Drive
         
         // Initialize Google Drive API
         const tokens = JSON.parse(await fs.readFile('tokens.json'));
@@ -349,10 +355,10 @@ app.post('/api/upload', async (req, res) => {
                 .toBuffer();
         }
         
-        // Update file metadata to include the folder
+        // Update file metadata to use random name
         const fileMetadata = {
-            name: file.name,
-            parents: [folderId]  // Specify the folder ID here
+            name: randomFileName, // Use random name instead of original
+            parents: [folderId]
         };
 
         const media = {
