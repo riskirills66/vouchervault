@@ -672,14 +672,19 @@ button::-moz-focus-inner {
 /* Add styles for the sidebar */
 .sidebar {
     position: absolute;
-    right: -300px; /* Initially hidden */
+    right: -300px;
     top: 0;
     width: 300px;
     height: 100%;
     background: rgba(92, 92, 92, 0);
-    transition: right 0.3s ease, box-shadow 0.3s ease; /* Add transition for box-shadow */
+    transition: right 0.3s ease, box-shadow 0.3s ease;
     z-index: 100;
-    pointer-events: none; /* Make the sidebar background click-through */
+    pointer-events: none; /* Make only the sidebar container click-through */
+}
+
+/* Make all direct children of sidebar interactive */
+.sidebar > * {
+    pointer-events: auto;
 }
 
 /* Style for the drag button */
