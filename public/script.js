@@ -497,9 +497,6 @@ function showUploadOverlay() {
 }
 
 function hideUploadOverlay() {
-    if (activeUploads > 0) {
-        return;
-    }
     const overlay = document.getElementById('uploadOverlay');
     overlay.style.display = 'none';
     document.body.style.overflow = '';
