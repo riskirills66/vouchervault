@@ -7,6 +7,7 @@ body {
 }
 
 .container {
+    position: relative;
     max-width: 1400px;
     max-height: 95vh;
     margin: 0 auto;
@@ -152,7 +153,8 @@ h1 {
     flex: 1;
     min-width: 280px;
     max-width: 320px;
-    padding: 24px;
+    padding: 5px;
+    padding-bottom: 24px;
     background: none;
     border-radius: 16px;
     display: flex;
@@ -393,14 +395,15 @@ button::-moz-focus-inner {
 
 .file-count {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #f8f9fa;
+    top: 24px;
+    right: 24px;
+    background: rgba(255, 255, 255, 0.9);
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 14px;
     color: #666;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    z-index: 1;
 }
 
 .upload-section {
