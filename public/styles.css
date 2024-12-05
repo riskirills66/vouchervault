@@ -65,10 +65,10 @@ h1 {
 
 .resize-handle {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 6px;
     background: #ffffff;
-    border: 1px solid #ff0000;
+    border: 2px solid #ff0000;
     border-radius: 50%;
 }
 
