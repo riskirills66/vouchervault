@@ -7,7 +7,7 @@ const fs = require('fs').promises;
 const app = express();
 const { google } = require('googleapis');
 const sql = require('mssql');
-const sharp = require('sharp');
+const Jimp = require('jimp');
 const config = require('./config.json');
 const crypto = require('crypto');
 
@@ -326,43 +326,35 @@ app.post('/api/upload', async (req, res) => {
             throw new Error(`Duplicate voucher found: ${file.name}`);
         }
 
-        // Convert base64 to buffer
-        const buffer = Buffer.from(file.buffer.split(',')[1], 'base64');
-        
-        // Process image with Sharp
-        let processedBuffer = await sharp(buffer)
-            .resize({ 
-                height: 720,
-                width: 10000,
-                fit: 'inside',
-                withoutEnlargement: true 
-            })
-            .png({ quality: 80 })
-            .toBuffer();
-        
-        // Compress further if needed
-        let quality = 80;
-        while (processedBuffer.length > 200 * 1024 && quality > 10) {
-            quality -= 10;
-            processedBuffer = await sharp(buffer)
-                .resize({ 
-                    height: 720,
-                    width: 10000,
-                    fit: 'inside',
-                    withoutEnlargement: true 
-                })
-                .png({ quality })
-                .toBuffer();
+        // Process image with Jimp
+        const imageBuffer = Buffer.from(file.buffer.split(',')[1], 'base64');
+        let image = await Jimp.read(imageBuffer);
+        const targetSizeKB = 100;
+
+        // Resize if height is greater than 720px
+        if (image.bitmap.height > 720) {
+            image = image.resize(Jimp.AUTO, 720);
         }
-        
+
+        let quality = 100;
+        let processedBuffer;
+
+        do {
+            processedBuffer = await image.quality(quality).getBufferAsync(Jimp.MIME_JPEG);
+            if (processedBuffer.length <= targetSizeKB * 1024) break;
+
+            quality -= 5;
+            if (quality < 0) quality = 0;
+        } while (processedBuffer.length > targetSizeKB * 1024);
+
         // Update file metadata to use random name
         const fileMetadata = {
-            name: randomFileName, // Use random name instead of original
+            name: randomFileName,
             parents: [folderId]
         };
 
         const media = {
-            mimeType: 'image/png',
+            mimeType: 'image/jpeg',
             body: require('stream').Readable.from(processedBuffer)
         };
 
