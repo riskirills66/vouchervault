@@ -516,7 +516,6 @@ function initializeUploadDisplay(files) {
         </div>
     `;
     
-    // Distribute files evenly across columns
     const columns = resultDiv.querySelectorAll('.upload-column');
     files.forEach((file, index) => {
         const column = columns[index % 3];
@@ -524,9 +523,29 @@ function initializeUploadDisplay(files) {
         row.id = `upload-${file.name.replace('.png', '')}`;
         row.className = 'upload-row';
         row.innerHTML = `
-            <span class="filename">${file.name.replace('.png', '')}</span>
+            <div class="filename-container">
+                <span class="filename">${file.name.replace('.png', '')}</span>
+                <button class="copy-button" title="Copy number">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path d="M16 1H4C3 1 2 2 2 3v14h2V3h12V1zm3 4H8C7 5 6 6 6 7v14c0 1 1 2 2 2h11c1 0 2-1 2-2V7c0-1-1-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                </button>
+            </div>
             <span class="status pending">Pending</span>
         `;
+
+        // Add click handler for copy button
+        const copyButton = row.querySelector('.copy-button');
+        copyButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const textToCopy = file.name.replace('.png', '');
+            navigator.clipboard.writeText(textToCopy);
+            
+            // Visual feedback
+            copyButton.classList.add('copied');
+            setTimeout(() => copyButton.classList.remove('copied'), 1000);
+        });
+
         column.appendChild(row);
     });
 }
@@ -735,5 +754,18 @@ document.addEventListener('click', (event) => {
 // Add event listener for the new button
 document.getElementById('showUploadProgress').addEventListener('click', () => {
     showUploadOverlay(); // Call the function to show the upload overlay
+});
+
+// Disable focusing except on input fields
+document.addEventListener('focusin', (event) => {
+    if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+        event.preventDefault();
+        event.target.blur();
+    }
+});
+
+// Disable right-clicking
+document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
 });
   

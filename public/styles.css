@@ -756,3 +756,41 @@ button::-moz-focus-inner {
 .upload-section input[type="file"]:hover {
     border-color: rgb(179, 118, 68); /* Change border color on hover */
 }
+
+/* Disable text selection globally */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.filename-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.copy-button {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.copy-button:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.copy-button svg {
+    fill: #fff;
+}
+
+.copy-button.copied {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
