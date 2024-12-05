@@ -24,7 +24,7 @@ Before starting, ensure you have:
 Run the following commands in your terminal:
 
 ```bash
-git clone https://github.com/riskirills66/lighthanzle.git
+git clone https://github.com/riskirills66/vouchervault.git
 cd lighthanzle
 ```
 
