@@ -5,6 +5,7 @@ const zoomStep = 0.1;
 const maxZoom = 3;
 const minZoom = 1;
 let activeUploads = 0;
+let isSidebarPinned = false;
 
 function showModal() {
     const modal = document.getElementById('resultModal');
@@ -683,6 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isAnyModalOpen = document.querySelector('.modal[style*="display: block"]');
         const uploadOverlay = document.getElementById('uploadOverlay');
         const sidebar = document.getElementById('uploadSidebar');
+        const dragButton = document.getElementById('dragButton');
 
         // Check if the sidebar is visible
         const isSidebarVisible = sidebar.style.right === '0px';
@@ -693,10 +695,10 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             captureImage();
         } else if (e.code === 'Escape' && !isAnyModalOpen && uploadOverlay.style.display !== 'block') {
-            // Dismiss the sidebar if it's visible
-            if (isSidebarVisible) {
+            // Only hide sidebar with Escape if it's not pinned
+            if (isSidebarVisible && !isSidebarPinned) {
                 sidebar.style.right = '-300px'; // Hide the sidebar
-                document.getElementById('dragButton').style.right = '0'; // Position drag button outside when sidebar is hidden
+                dragButton.style.right = '0'; // Position drag button outside when sidebar is hidden
             }
         }
     });
@@ -722,32 +724,35 @@ document.getElementById('dragButton').addEventListener('click', () => {
     const dragButton = document.getElementById('dragButton');
     const isVisible = sidebar.style.right === '0px';
 
-    // Toggle sidebar visibility
-    sidebar.style.right = isVisible ? '-300px' : '0px'; // Show or hide the sidebar
+    // Toggle sidebar visibility only if it's not pinned
+    if (!isSidebarPinned) {
+        sidebar.style.right = isVisible ? '-300px' : '0px'; // Show or hide the sidebar
 
-    // Adjust drag button position
-    if (isVisible) {
-        dragButton.style.right = '0'; // Position drag button outside when sidebar is hidden
-    } else {
-        dragButton.style.right = '300px'; // Position drag button at the edge of the sidebar when visible
+        // Adjust drag button position
+        if (isVisible) {
+            dragButton.style.right = '0'; // Position drag button outside when sidebar is hidden
+        } else {
+            dragButton.style.right = '300px'; // Position drag button at the edge of the sidebar when visible
+        }
     }
 });
 
-// Hide sidebar when clicking on specified elements
+// Modify the click event listener to respect the pin state
 document.addEventListener('click', (event) => {
     const sidebar = document.getElementById('uploadSidebar');
     const dragButton = document.getElementById('dragButton');
 
-    // Check if the click is on the main container, thumbnails, or video container
-    const isClickInsideSidebar = sidebar.contains(event.target);
-    const isClickOnDragButton = dragButton.contains(event.target);
-    const isClickOnMainContainer = document.querySelector('.container').contains(event.target);
-    const isClickOnThumbnails = document.querySelector('.thumbnails-section').contains(event.target);
-    const isClickOnVideoContainer = document.querySelector('.camera-container').contains(event.target);
+    if (!isSidebarPinned) {  // Only hide if not pinned
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickOnDragButton = dragButton.contains(event.target);
+        const isClickOnMainContainer = document.querySelector('.container').contains(event.target);
+        const isClickOnThumbnails = document.querySelector('.thumbnails-section').contains(event.target);
+        const isClickOnVideoContainer = document.querySelector('.camera-container').contains(event.target);
 
-    if (!isClickInsideSidebar && !isClickOnDragButton && (isClickOnMainContainer || isClickOnThumbnails || isClickOnVideoContainer)) {
-        sidebar.style.right = '-300px'; // Hide the sidebar
-        dragButton.style.right = '0'; // Position drag button outside when sidebar is hidden
+        if (!isClickInsideSidebar && !isClickOnDragButton && (isClickOnMainContainer || isClickOnThumbnails || isClickOnVideoContainer)) {
+            sidebar.style.right = '-300px'; // Hide the sidebar
+            dragButton.style.right = '0'; // Position drag button outside when sidebar is hidden
+        }
     }
 });
 
@@ -767,5 +772,10 @@ document.addEventListener('focusin', (event) => {
 // Disable right-clicking
 document.addEventListener('contextmenu', (event) => {
     event.preventDefault();
+});
+
+document.getElementById('pinSidebar').addEventListener('click', function() {
+    this.classList.toggle('pinned');
+    isSidebarPinned = this.classList.contains('pinned');
 });
   

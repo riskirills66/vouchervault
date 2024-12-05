@@ -1,7 +1,7 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #333;
-    background: #fff;
+    background: rgb(92, 92, 92);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
@@ -12,13 +12,11 @@ body {
     max-height: 95vh;
     margin: 0 auto;
     padding: 24px;
-    background: #d4cbc7;
+    background: #d3d3d3;
     border-radius: 16px;
-    border: 12px solid #fff2ec;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.500);
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -38,7 +36,7 @@ h1 {
     max-width: 1280px;
     aspect-ratio: 16/9;
     border-radius: 16px;
-    background: #f8f9fa;
+    background: #ffffff;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
@@ -391,7 +389,7 @@ button::-moz-focus-inner {
 
 .image-name-input:focus {
     outline: none;
-    border-color: rgb(179, 118, 68);
+    border-color: rgb(179, 179, 179);
     background: rgba(0,0,0,0.7);
 }
 
@@ -416,11 +414,11 @@ button::-moz-focus-inner {
 }
 
 .upload-section {
-    margin-top: 20px;
+    margin-top: 65px;
     padding: 20px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background: rgb(92, 92, 92);
+    border-radius: 12px 0 0 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .google-auth {
@@ -430,7 +428,7 @@ button::-moz-focus-inner {
 .auth-button {
     width: 100%;
     padding: 10px;
-    background: #4285f4;
+    background: #616161;
     color: white;
     border: none;
     border-radius: 8px;
@@ -439,7 +437,7 @@ button::-moz-focus-inner {
 }
 
 .auth-button.connected {
-    background: #adffbb;
+    background: #68ff42;
 }
 
 #showUploadProgress {
@@ -678,14 +676,10 @@ button::-moz-focus-inner {
     top: 0;
     width: 300px;
     height: 100%;
-    background: #fff;
+    background: rgba(92, 92, 92, 0);
     transition: right 0.3s ease, box-shadow 0.3s ease; /* Add transition for box-shadow */
     z-index: 100;
-}
-
-/* Add new style for visible sidebar */
-.sidebar[style*="right: 0"] {
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    pointer-events: none; /* Make the sidebar background click-through */
 }
 
 /* Style for the drag button */
@@ -697,7 +691,7 @@ button::-moz-focus-inner {
     width: 20px;
     height: 100px;
     background: #ffffff;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
     cursor: pointer;
     border-radius: 5px 0 0 5px;
     z-index: 101;
@@ -714,7 +708,7 @@ button::-moz-focus-inner {
 }
 
 .drag-button:hover {
-    background-color: rgb(179, 118, 68);
+    background-color: rgb(92, 92, 92);
     color: #ebebeb;
 }
 
@@ -735,7 +729,7 @@ button::-moz-focus-inner {
 /* Hover effect for buttons */
 .upload-section button:hover,
 .camera-controls button:hover {
-    background: rgb(179, 118, 68); /* Change background on hover */
+    background: rgb(0, 77, 128); /* Change background on hover */
     color: white; /* Change text color on hover */
     transform: translateY(-1px); /* Slight lift effect */
 }
@@ -754,7 +748,7 @@ button::-moz-focus-inner {
 
 /* Hover effect for file input */
 .upload-section input[type="file"]:hover {
-    border-color: rgb(179, 118, 68); /* Change border color on hover */
+    border-color: rgb(92, 92, 92); /* Change border color on hover */
 }
 
 /* Disable text selection globally */
@@ -793,4 +787,82 @@ button::-moz-focus-inner {
 .copy-button.copied {
     background: rgba(40, 167, 69, 0.2);
     color: #28a745;
+}
+
+.pin-button {
+    background: #616161;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 10px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pin-button svg {
+    fill: currentColor;
+    transition: transform 0.2s ease;
+}
+
+.pin-button.pinned {
+    background: #ff0000;
+    color: white;
+}
+
+.pin-button.pinned svg {
+    transform: rotate(45deg);
+}
+
+.pin-button:hover {
+    background: #777;
+    color: white;
+}
+
+.pin-button.pinned:hover {
+    background: #ff3333;
+    color: white;
+}
+
+.sidebar-pin {
+    position: absolute;
+    top: 40px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background: #50005a;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    pointer-events: auto; /* Allow interaction with this element */
+}
+
+.sidebar-pin svg {
+    fill: #ffffff;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-pin:hover {
+    background: #250033;
+}
+
+.sidebar-pin.pinned {
+    background: #bd0000;
+}
+
+.sidebar-pin.pinned svg {
+    transform: rotate(45deg);
+}
+
+.sidebar-pin:active {
+    transform: scale(0.95);
 }
