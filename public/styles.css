@@ -431,7 +431,11 @@ button::-moz-focus-inner {
 }
 
 .auth-button.connected {
-    background: #34a853;
+    background: #adffbb;
+}
+
+#showUploadProgress {
+    margin-top: 10px; /* Add some spacing */
 }
 
 #uploadForm {
@@ -657,4 +661,71 @@ button::-moz-focus-inner {
 
 #resultNumber span {
     color: #007AFF;
+}
+
+/* Add styles for the sidebar */
+.sidebar {
+    position: absolute;
+    right: -300px; /* Initially hidden */
+    top: 0;
+    width: 300px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 100;
+}
+
+/* Style for the drag button */
+.drag-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 100px;
+    background: #ffffff;
+    cursor: pointer;
+    border-radius: 5px 0 0 5px;
+    z-index: 101;
+    transition: right 0.3s ease;
+}
+
+/* Styles for buttons */
+.upload-section button,
+.camera-controls button {
+    padding: 12px 24px; /* Same padding as capture button */
+    font-size: 15px; /* Same font size */
+    cursor: pointer; /* Pointer cursor */
+    background: white; /* Background color */
+    border: none; /* No border */
+    border-radius: 8px; /* Rounded corners */
+    color: #333; /* Text color */
+    transition: all 0.2s ease; /* Transition for hover effect */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Shadow effect */
+}
+
+/* Hover effect for buttons */
+.upload-section button:hover,
+.camera-controls button:hover {
+    background: #007AFF; /* Change background on hover */
+    color: white; /* Change text color on hover */
+    transform: translateY(-1px); /* Slight lift effect */
+}
+
+/* Styles for file input to match button */
+.upload-section input[type="file"] {
+    padding: 12px; /* Same padding */
+    border: 1px solid #ddd; /* Border */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 15px; /* Same font size */
+    color: #333; /* Text color */
+    background: white; /* Background color */
+    cursor: pointer; /* Pointer cursor */
+    transition: all 0.2s ease; /* Transition for hover effect */
+}
+
+/* Hover effect for file input */
+.upload-section input[type="file"]:hover {
+    border-color: #007AFF; /* Change border color on hover */
 }

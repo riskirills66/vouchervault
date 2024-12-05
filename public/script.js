@@ -35,6 +35,11 @@ async function initializeCamera() {
 }
 
 async function captureImage() {
+    // Check if any modal or upload overlay is open
+    const isAnyModalOpen = document.querySelector('.modal[style*="display: block"]');
+    const isUploadOverlayVisible = document.getElementById('uploadOverlay').style.display === 'block';
+    if (isAnyModalOpen || isUploadOverlayVisible) return; // Disable capture if a modal or upload overlay is open
+
     if (isCapturing) return;
     isCapturing = true;
 
@@ -345,18 +350,22 @@ function showPreviewModal(imageName) {
         modal.style.display = 'none';
         // Remove event listeners
         closeBtn.removeEventListener('click', closePreviewModal);
+        previewImage.removeEventListener('click', closePreviewModal); // Remove click event from image
         modal.removeEventListener('click', handleModalClick);
     };
     
     // Handle clicking on the dark overlay
     const handleModalClick = (event) => {
-        if (event.target === modal) {
+        if (event.target === modal) { // Check if the click is on the modal (dark overlay)
             closePreviewModal();
         }
     };
     
     closeBtn.addEventListener('click', closePreviewModal);
-    modal.addEventListener('click', handleModalClick);
+    modal.addEventListener('click', handleModalClick); // Ensure this is set up correctly
+    
+    // Handle clicking on the preview image to close the modal
+    previewImage.addEventListener('click', closePreviewModal); // Add click event to image
     
     // Handle name editing
     nameInput.addEventListener('keydown', async (e) => {
@@ -652,12 +661,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add keyboard event listener at document level
     document.addEventListener('keydown', (e) => {
         const isAnyModalOpen = document.querySelector('.modal[style*="display: block"]');
-        
+        const uploadOverlay = document.getElementById('uploadOverlay');
+        const sidebar = document.getElementById('uploadSidebar');
+
+        // Check if the sidebar is visible
+        const isSidebarVisible = sidebar.style.right === '0px';
+
         if (isAnyModalOpen) {
             handleModalKeyPress(e);
         } else if (e.code === 'Space') {
             e.preventDefault();
             captureImage();
+        } else if (e.code === 'Escape' && !isAnyModalOpen && uploadOverlay.style.display !== 'block') {
+            // Dismiss the sidebar if it's visible
+            if (isSidebarVisible) {
+                sidebar.style.right = '-300px'; // Hide the sidebar
+                document.getElementById('dragButton').style.right = '0'; // Position drag button outside when sidebar is hidden
+            }
         }
     });
     
@@ -675,4 +695,44 @@ document.addEventListener('DOMContentLoaded', () => {
             hideModal();
         }
     });
-}); 
+});
+
+document.getElementById('dragButton').addEventListener('click', () => {
+    const sidebar = document.getElementById('uploadSidebar');
+    const dragButton = document.getElementById('dragButton');
+    const isVisible = sidebar.style.right === '0px';
+
+    // Toggle sidebar visibility
+    sidebar.style.right = isVisible ? '-300px' : '0px'; // Show or hide the sidebar
+
+    // Adjust drag button position
+    if (isVisible) {
+        dragButton.style.right = '0'; // Position drag button outside when sidebar is hidden
+    } else {
+        dragButton.style.right = '300px'; // Position drag button at the edge of the sidebar when visible
+    }
+});
+
+// Hide sidebar when clicking on specified elements
+document.addEventListener('click', (event) => {
+    const sidebar = document.getElementById('uploadSidebar');
+    const dragButton = document.getElementById('dragButton');
+
+    // Check if the click is on the main container, thumbnails, or video container
+    const isClickInsideSidebar = sidebar.contains(event.target);
+    const isClickOnDragButton = dragButton.contains(event.target);
+    const isClickOnMainContainer = document.querySelector('.container').contains(event.target);
+    const isClickOnThumbnails = document.querySelector('.thumbnails-section').contains(event.target);
+    const isClickOnVideoContainer = document.querySelector('.camera-container').contains(event.target);
+
+    if (!isClickInsideSidebar && !isClickOnDragButton && (isClickOnMainContainer || isClickOnThumbnails || isClickOnVideoContainer)) {
+        sidebar.style.right = '-300px'; // Hide the sidebar
+        dragButton.style.right = '0'; // Position drag button outside when sidebar is hidden
+    }
+});
+
+// Add event listener for the new button
+document.getElementById('showUploadProgress').addEventListener('click', () => {
+    showUploadOverlay(); // Call the function to show the upload overlay
+});
+  

@@ -26,24 +26,33 @@
             
             <div class="thumbnails-section">
                 <div id="thumbnails-grid"></div>
-                
-                <div class="upload-section">
-                    <div class="google-auth">
-                        <button id="connectGoogle" class="auth-button">
-                            <span id="authStatus">Connect Google Drive</span>
-                        </button>
-                    </div>
-                    
-                    <form id="uploadForm">
-                        <input type="text" id="kodeProduk" placeholder="Kode Produk" required>
-                        <input type="text" id="keterangan" placeholder="Keterangan">
-                        <input type="date" id="tglKadaluarsa" required>
-                        <input type="file" id="fileInput" multiple accept="image/*">
-                        <button type="submit" id="uploadButton" disabled>Upload Files</button>
-                    </form>
-                </div>
             </div>
         </div>
+
+        <!-- Sidebar for upload section -->
+        <div class="sidebar" id="uploadSidebar">
+            <div class="upload-section">
+                <div class="google-auth">
+                    <button id="connectGoogle" class="auth-button">
+                        <span id="authStatus">Connect Google Drive</span>
+                    </button>
+                </div>
+                
+                <form id="uploadForm">
+                    <input type="text" id="kodeProduk" placeholder="Kode Produk" required>
+                    <input type="text" id="keterangan" placeholder="Keterangan">
+                    <input type="date" id="tglKadaluarsa" required>
+                    <input type="file" id="fileInput" multiple accept="image/*">
+                    <button type="submit" id="uploadButton" disabled>Upload Files</button>
+                </form>
+                
+                <!-- New button to show upload progress -->
+                <button id="showUploadProgress" class="auth-button">Show Upload Progress</button>
+            </div>
+        </div>
+
+        <!-- Drag button to toggle sidebar -->
+        <div class="drag-button" id="dragButton"></div>
     </div>
     <div id="resultModal" class="modal">
         <div class="modal-content">
