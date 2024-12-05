@@ -1,4 +1,4 @@
-# README for VCR Vault
+# Voucher Vault
 
 ## Introduction
 
