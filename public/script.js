@@ -407,7 +407,7 @@ async function loadThumbnails() {
                 fileCountElement.className = 'file-count';
                 document.querySelector('.container').appendChild(fileCountElement);
             }
-            fileCountElement.textContent = `${data.count} files`;
+            fileCountElement.textContent = `${data.count} Vcr`;
             
             const thumbnailsGrid = document.getElementById('thumbnails-grid');
             thumbnailsGrid.innerHTML = '';
@@ -430,13 +430,17 @@ async function loadThumbnails() {
                 nameDiv.className = 'thumbnail-name';
                 nameDiv.textContent = imageName.replace('.png', '');
                 
-                // Add delete button
+                // Update delete button with SVG trash icon
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'delete-button';
-                deleteButton.innerHTML = '×';
+                deleteButton.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                `;
                 deleteButton.title = 'Delete image';
                 deleteButton.onclick = (e) => {
-                    e.stopPropagation(); // Prevent thumbnail click when clicking delete
+                    e.stopPropagation();
                     showDeleteModal(imageName);
                 };
                 
@@ -467,11 +471,11 @@ async function checkAuthStatus() {
         
         if (data.authenticated) {
             authButton.classList.add('connected');
-            authStatus.textContent = 'Connected to Google Drive';
+            authStatus.textContent = 'Terhubung ke Google Drive';
             uploadButton.disabled = false;
         } else {
             authButton.classList.remove('connected');
-            authStatus.textContent = 'Connect Google Drive';
+            authStatus.textContent = 'Hubungkan Google Drive';
             uploadButton.disabled = true;
         }
     } catch (error) {
@@ -561,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const files = Array.from(fileInput.files);
         
         if (files.length === 0) {
-            alert('Please select files to upload');
+            alert('Silakan pilih file untuk diinput');
             return;
         }
 

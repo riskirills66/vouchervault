@@ -243,18 +243,24 @@ h1 {
     background: rgba(255, 59, 48, 0.9);
     color: white;
     border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 14px;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
     backdrop-filter: blur(4px);
     transition: all 0.2s ease;
     z-index: 10;
+    width: 32px;
+    height: 32px;
+}
+
+.delete-button svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
 }
 
 .delete-button:hover {
