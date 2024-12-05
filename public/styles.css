@@ -12,12 +12,13 @@ body {
     max-height: 95vh;
     margin: 0 auto;
     padding: 24px;
-    background: #d2e3f3;
+    background: #d4cbc7;
     border-radius: 16px;
-    border: 12px solid #e8f0fc;
+    border: 12px solid #fff2ec;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                inset 0 2px 4px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -25,7 +26,7 @@ body {
 h1 {
     font-size: 2rem;
     font-weight: 500;
-    color: #758092;
+    color: #464646;
     margin-bottom: 0.5rem;
 }
 
@@ -48,6 +49,7 @@ h1 {
     border-radius: 16px;
     transform-origin: center;
     transition: transform 0.2s ease-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 #capture-area {
@@ -123,7 +125,7 @@ h1 {
 }
 
 .camera-controls button:hover {
-    background: #007AFF;
+    background: #ff0000;
     color: white;
     transform: translateY(-1px);
 }
@@ -383,7 +385,7 @@ button::-moz-focus-inner {
 
 .image-name-input:focus {
     outline: none;
-    border-color: #007AFF;
+    border-color: rgb(179, 118, 68);
     background: rgba(0,0,0,0.7);
 }
 
@@ -660,7 +662,7 @@ button::-moz-focus-inner {
 }
 
 #resultNumber span {
-    color: #007AFF;
+    color: #ff008c;
 }
 
 /* Add styles for the sidebar */
@@ -671,24 +673,43 @@ button::-moz-focus-inner {
     width: 300px;
     height: 100%;
     background: #fff;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    transition: right 0.3s ease;
+    transition: right 0.3s ease, box-shadow 0.3s ease; /* Add transition for box-shadow */
     z-index: 100;
+}
+
+/* Add new style for visible sidebar */
+.sidebar[style*="right: 0"] {
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Style for the drag button */
 .drag-button {
     position: absolute;
     right: 0;
-    top: 50%;
+    top: 25%;
     transform: translateY(-50%);
     width: 20px;
     height: 100px;
     background: #ffffff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     border-radius: 5px 0 0 5px;
     z-index: 101;
     transition: right 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.drag-button:hover {
+    background-color: rgb(179, 118, 68);
+    color: #ebebeb;
 }
 
 /* Styles for buttons */
@@ -708,7 +729,7 @@ button::-moz-focus-inner {
 /* Hover effect for buttons */
 .upload-section button:hover,
 .camera-controls button:hover {
-    background: #007AFF; /* Change background on hover */
+    background: rgb(179, 118, 68); /* Change background on hover */
     color: white; /* Change text color on hover */
     transform: translateY(-1px); /* Slight lift effect */
 }
@@ -727,5 +748,5 @@ button::-moz-focus-inner {
 
 /* Hover effect for file input */
 .upload-section input[type="file"]:hover {
-    border-color: #007AFF; /* Change border color on hover */
+    border-color: rgb(179, 118, 68); /* Change border color on hover */
 }
