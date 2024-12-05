@@ -294,7 +294,70 @@ async function makeFilePublic(drive, fileId) {
     }
 }
 
-// Modified upload endpoint
+// Add these helper functions at the top level
+const processImage = async (imageBuffer) => {
+    const image = await Jimp.read(imageBuffer);
+    const targetSizeKB = 100;
+
+    // Resize in one step if needed
+    if (image.bitmap.height > 720) {
+        image.resize(Jimp.AUTO, 720);
+    }
+
+    let quality = 100;
+    let processedBuffer;
+
+    do {
+        processedBuffer = await image.quality(quality).getBufferAsync(Jimp.MIME_JPEG);
+        if (processedBuffer.length <= targetSizeKB * 1024) break;
+        quality -= 5;
+    } while (quality >= 0);
+
+    return processedBuffer;
+};
+
+const uploadToDrive = async (drive, folderId, fileName, buffer) => {
+    const fileMetadata = {
+        name: fileName,
+        parents: [folderId]
+    };
+
+    const media = {
+        mimeType: 'image/jpeg',
+        body: require('stream').Readable.from(buffer)
+    };
+
+    const driveFile = await drive.files.create({
+        resource: fileMetadata,
+        media: media,
+        fields: 'id, webViewLink'
+    });
+
+    await makeFilePublic(drive, driveFile.data.id);
+    return driveFile.data.webViewLink.replace('/view?usp=drivesdk', '');
+};
+
+// Add retry utility function
+const retry = async (fn, retries = 3, delay = 1000) => {
+    let lastError;
+    
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            lastError = error;
+            if (error.message.includes('Duplicate')) {
+                throw error; // Don't retry duplicates
+            }
+            if (i < retries - 1) {
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+    throw lastError;
+};
+
+// Modified upload endpoint with retry logic
 app.post('/api/upload', async (req, res) => {
     try {
         const { kodeProduk, keterangan, tglKadaluarsa, files } = req.body;
@@ -304,94 +367,61 @@ app.post('/api/upload', async (req, res) => {
         }
 
         const file = files[0];
-        const randomFileName = generateRandomFileName(); // Generate random name for Drive
+        const randomFileName = generateRandomFileName();
         
-        // Initialize Google Drive API
-        const tokens = JSON.parse(await fs.readFile('tokens.json'));
-        oauth2Client.setCredentials(tokens);
-        const drive = google.drive({ version: 'v3', auth: oauth2Client });
+        // Wrap the entire upload process in retry logic
+        const { name, driveLink } = await retry(async () => {
+            const [tokens, pool, processedBuffer] = await Promise.all([
+                fs.readFile('tokens.json').then(JSON.parse),
+                sql.connect(dbConfig),
+                processImage(Buffer.from(file.buffer.split(',')[1], 'base64'))
+            ]);
 
-        // Get or create the folder
-        const folderId = await getOrCreateFolder(drive, 'hanzlenord');
+            oauth2Client.setCredentials(tokens);
+            const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
-        // Connect to database
-        const pool = await sql.connect(dbConfig);
+            const [duplicateCheck, folderId] = await Promise.all([
+                pool.request()
+                    .input('vn', sql.VarChar, file.name.replace('.png', ''))
+                    .query('SELECT vn FROM fisik WHERE vn = @vn'),
+                getOrCreateFolder(drive, 'hanzlenord')
+            ]);
 
-        // Check for duplicate
-        const result = await pool.request()
-            .input('vn', sql.VarChar, file.name.replace('.png', ''))
-            .query('SELECT vn FROM fisik WHERE vn = @vn');
-            
-        if (result.recordset.length > 0) {
-            throw new Error(`Duplicate voucher found: ${file.name}`);
-        }
+            if (duplicateCheck.recordset.length > 0) {
+                throw new Error(`Duplicate voucher found: ${file.name}`);
+            }
 
-        // Process image with Jimp
-        const imageBuffer = Buffer.from(file.buffer.split(',')[1], 'base64');
-        let image = await Jimp.read(imageBuffer);
-        const targetSizeKB = 100;
+            // Upload to Drive with retry
+            const driveLink = await retry(
+                () => uploadToDrive(drive, folderId, randomFileName, processedBuffer),
+                3,
+                2000
+            );
 
-        // Resize if height is greater than 720px
-        if (image.bitmap.height > 720) {
-            image = image.resize(Jimp.AUTO, 720);
-        }
+            // Insert into database with retry
+            await retry(async () => {
+                await pool.request()
+                    .input('kode_produk', sql.VarChar(20), kodeProduk)
+                    .input('vn', sql.VarChar(255), file.name.replace('.png', ''))
+                    .input('sn', sql.VarChar(255), driveLink)
+                    .input('status', sql.TinyInt, 0)
+                    .input('tgl_entri', sql.DateTime, new Date())
+                    .input('tgl_kadaluarsa', sql.DateTime, new Date(tglKadaluarsa))
+                    .input('keterangan', sql.VarChar(255), keterangan)
+                    .query(`
+                        INSERT INTO fisik (kode_produk, vn, sn, status, tgl_entri, tgl_kadaluarsa, keterangan)
+                        VALUES (@kode_produk, @vn, @sn, @status, @tgl_entri, @tgl_kadaluarsa, @keterangan)
+                    `);
+            });
 
-        let quality = 100;
-        let processedBuffer;
-
-        do {
-            processedBuffer = await image.quality(quality).getBufferAsync(Jimp.MIME_JPEG);
-            if (processedBuffer.length <= targetSizeKB * 1024) break;
-
-            quality -= 5;
-            if (quality < 0) quality = 0;
-        } while (processedBuffer.length > targetSizeKB * 1024);
-
-        // Update file metadata to use random name
-        const fileMetadata = {
-            name: randomFileName,
-            parents: [folderId]
-        };
-
-        const media = {
-            mimeType: 'image/jpeg',
-            body: require('stream').Readable.from(processedBuffer)
-        };
-
-        const driveFile = await drive.files.create({
-            resource: fileMetadata,
-            media: media,
-            fields: 'id, webViewLink'
+            return { name: file.name, driveLink };
         });
-
-        // Make the file publicly accessible
-        await makeFilePublic(drive, driveFile.data.id);
-
-        // Modify before database insertion
-        const driveLink = driveFile.data.webViewLink.replace('/view?usp=drivesdk', '');
-
-        // Insert into database
-        await pool.request()
-            .input('kode_produk', sql.VarChar(20), kodeProduk)
-            .input('vn', sql.VarChar(255), file.name.replace('.png', ''))
-            .input('sn', sql.VarChar(255), driveLink)
-            .input('status', sql.TinyInt, 0)
-            .input('tgl_entri', sql.DateTime, new Date())
-            .input('tgl_kadaluarsa', sql.DateTime, new Date(tglKadaluarsa))
-            .input('keterangan', sql.VarChar(255), keterangan)
-            .query(`
-                INSERT INTO fisik (kode_produk, vn, sn, status, tgl_entri, tgl_kadaluarsa, keterangan)
-                VALUES (@kode_produk, @vn, @sn, @status, @tgl_entri, @tgl_kadaluarsa, @keterangan)
-            `);
-
-        // Add a small random delay to simulate varying processing times
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 2000));
 
         res.json({ 
             success: true, 
             result: {
-                name: file.name,
-                driveLink: driveLink
+                name,
+                driveLink
             }
         });
 
