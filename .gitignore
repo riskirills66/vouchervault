@@ -3,6 +3,7 @@ obfuscated/
 node_modules/
 logs/
 captures/
+captured/
 public/config.json
 public/gcloudserviceaccountkey.json
 dist/
