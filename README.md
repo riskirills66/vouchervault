@@ -25,7 +25,7 @@ Run the following commands in your terminal:
 
 ```bash
 git clone https://github.com/riskirills66/vouchervault.git
-cd lighthanzle
+cd VcrVault
 ```
 
 ---
