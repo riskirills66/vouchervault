@@ -404,7 +404,7 @@ app.post('/api/upload', async (req, res) => {
                     .input('kode_produk', sql.VarChar(20), kodeProduk)
                     .input('vn', sql.VarChar(255), file.name.replace('.png', ''))
                     .input('sn', sql.VarChar(255), driveLink)
-                    .input('status', sql.TinyInt, 0)
+                    .input('status', sql.TinyInt, 1)
                     .input('tgl_entri', sql.DateTime, new Date())
                     .input('tgl_kadaluarsa', sql.DateTime, new Date(tglKadaluarsa))
                     .input('keterangan', sql.VarChar(255), keterangan)
