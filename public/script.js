@@ -507,6 +507,16 @@ function hideUploadOverlay() {
     document.body.style.overflow = '';
 }
 
+function hasCommonSubstring(name1, name2, length = 8) {
+    for (let i = 0; i <= name1.length - length; i++) {
+        const substring = name1.substring(i, i + length);
+        if (name2.includes(substring)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function initializeUploadDisplay(files) {
     const resultDiv = document.getElementById('uploadProgress');
     resultDiv.innerHTML = `
@@ -518,14 +528,30 @@ function initializeUploadDisplay(files) {
     `;
     
     const columns = resultDiv.querySelectorAll('.upload-column');
+    const baseNames = files.map(file => file.name.replace('.png', '')); // Get base names
+    const similarNames = new Set(); // To track similar names
+
+    // Check for common substrings of length 8
+    for (let i = 0; i < baseNames.length; i++) {
+        for (let j = i + 1; j < baseNames.length; j++) {
+            if (hasCommonSubstring(baseNames[i], baseNames[j])) {
+                similarNames.add(baseNames[i]);
+                similarNames.add(baseNames[j]);
+            }
+        }
+    }
+
     files.forEach((file, index) => {
+        const baseName = file.name.replace('.png', '');
+
         const column = columns[index % 3];
         const row = document.createElement('div');
-        row.id = `upload-${file.name.replace('.png', '')}`;
+        row.id = `upload-${baseName}`;
         row.className = 'upload-row';
         row.innerHTML = `
             <div class="filename-container">
-                <span class="filename">${file.name.replace('.png', '')}</span>
+                <span class="filename">${baseName}</span>
+                ${similarNames.has(baseName) ? '<span class="flag">⚠️</span>' : ''}
                 <button class="copy-button" title="Copy number">
                     <svg viewBox="0 0 24 24" width="16" height="16">
                         <path d="M16 1H4C3 1 2 2 2 3v14h2V3h12V1zm3 4H8C7 5 6 6 6 7v14c0 1 1 2 2 2h11c1 0 2-1 2-2V7c0-1-1-2-2-2zm0 16H8V7h11v14z"/>
@@ -539,7 +565,7 @@ function initializeUploadDisplay(files) {
         const copyButton = row.querySelector('.copy-button');
         copyButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            const textToCopy = file.name.replace('.png', '');
+            const textToCopy = baseName;
             navigator.clipboard.writeText(textToCopy);
             
             // Visual feedback
