@@ -448,6 +448,25 @@ app.get('/auth/status', async (req, res) => {
     }
 });
 
+app.get('/remove/products/test1', async (req, res) => {
+    try {
+        const pool = await sql.connect(dbConfig);
+        
+        // Delete records where kode_produk is 'TEST1'
+        const result = await pool.request()
+            .input('kode_produk', sql.VarChar(20), 'TEST1')
+            .query('DELETE FROM fisik WHERE kode_produk = @kode_produk');
+
+        res.json({ 
+            success: true, 
+            deletedCount: result.rowsAffected[0] // Return the number of deleted records
+        });
+    } catch (error) {
+        console.error('Error deleting records:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
